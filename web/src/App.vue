@@ -6,8 +6,38 @@
 </template>
 
 <script>
+// import gql from 'graphql-tag'
 export default {
   name: 'app'
+  // Apollo-specific options
+//  apollo: {
+//    // Query with parameters
+//    author: {
+//      // gql query
+//      query: gql`query getAuthor($id: Int!){
+//        author(id: $id) {
+//          firstName
+//          lastName
+//          posts {
+//            id
+//            title
+//          }
+//        }
+//      }`,
+//      // Static parameters
+//      variables () {
+//        return {
+//          id: 1
+//        }
+//      },
+//      result (data) {
+//        console.log(data)
+//        if (data.author) {
+//          console.log(data.author.firstName)
+//        }
+//      }
+//    }
+//  }
 }
 </script>
 

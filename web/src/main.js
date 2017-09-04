@@ -3,16 +3,29 @@
 import Vue from 'vue'
 import App from './App'
 import router from './router'
-import { ApolloClient, createBatchingNetworkInterface } from 'apollo-client'
+import { ApolloClient, createNetworkInterface, createBatchingNetworkInterface } from 'apollo-client'
 import VueApollo from 'vue-apollo'
 
 Vue.config.productionTip = false
 
+// Create the network interface
+const networkInterface = createNetworkInterface({
+  uri: 'http://localhost:8080/graphql'
+})
+
+// Create the batching network interface
+const networkBatchingInterface = createBatchingNetworkInterface({
+  uri: 'http://localhost:8080/graphql',
+  batchInterval: 10,
+  batchMax: 10,
+  opts: {}
+})
+
+console.log(networkBatchingInterface)
+
 // Create the apollo client
 const apolloClient = new ApolloClient({
-  networkInterface: createBatchingNetworkInterface({
-    uri: 'http://localhost:8080/graphql'
-  }),
+  networkInterface: networkInterface,
   connectToDevTools: true
 })
 

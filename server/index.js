@@ -2,48 +2,54 @@ import express from 'express';
 import { graphqlExpress, graphiqlExpress } from 'graphql-server-express';
 import bodyParser from 'body-parser';
 import cors from 'cors';
-import { createServer } from 'http';
-import { SubscriptionServer } from 'subscriptions-transport-ws';
 import { printSchema } from 'graphql/utilities/schemaPrinter';
 
-import { subscriptionManager } from './data/subscriptions';
+import mongoose from 'mongoose'
+
+import { pubsub } from './data/subscriptions';
 import schema from './data/schema';
+
+import getMeeting from './controllers/index/1.js'
+import getMeetingApplication from './controllers/index/2.js'
+import getMeetingApplicationCompany from './controllers/index/3.js'
 
 const GRAPHQL_PORT = 8080;
 const WS_PORT = 8090;
+const dbUrl = 'mongodb://localhost:3001/meteor';
 
-const graphQLServer = express().use('*', cors());
+const app = express()
+const graphQLServer = app.use('*', cors());
 
-graphQLServer.use('/graphql', bodyParser.json(), graphqlExpress({
+mongoose.Promise = global.Promise;
+
+mongoose.connect(dbUrl, {
+  useMongoClient: true,
+  /* other options */
+});
+
+app.use('/graphql', bodyParser.json(), graphqlExpress({
   schema,
   context: {},
 }));
 
-graphQLServer.use('/graphiql', graphiqlExpress({
+app.use('/graphiql', graphiqlExpress({
   endpointURL: '/graphql',
 }));
 
-graphQLServer.use('/schema', (req, res) => {
+app.use('/schema', (req, res) => {
   res.set('Content-Type', 'text/plain');
   res.send(printSchema(schema));
 });
 
-graphQLServer.listen(GRAPHQL_PORT, () => console.log(
+app.listen(GRAPHQL_PORT, () => console.log(
   `GraphQL Server is now running on http://localhost:${GRAPHQL_PORT}/graphql`
 ));
 
-// WebSocket server for subscriptions
-const websocketServer = createServer((request, response) => {
-  response.writeHead(404);
-  response.end();
-});
-
-websocketServer.listen(WS_PORT, () => console.log( // eslint-disable-line no-console
-  `Websocket Server is now running on http://localhost:${WS_PORT}`
-));
-
-// eslint-disable-next-line
-new SubscriptionServer(
-  { subscriptionManager },
-  websocketServer
-);
+app.get('/pub', function (req, res) {
+  console.log(req)
+  pubsub.publish('postUpvoted', 3);
+  console.log(res)
+})
+app.get('/index/1', getMeeting)
+app.get('/index/2', getMeetingApplication)
+app.get('/index/3', getMeetingApplicationCompany)
