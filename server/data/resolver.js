@@ -1,5 +1,6 @@
 import { find, filter } from 'lodash';
 import { pubsub } from './subscriptions';
+import {Company, Application, Meeting} from '../m_schema/tf_schema';
 
 const authors = [
   { id: 1, firstName: 'Toms', lastName: 'Coleman' },
@@ -19,6 +20,17 @@ const resolveFunctions = {
     },
     author(_, { id }) {
       return find(authors, { id: id });
+    },
+    meeting: async(_, {name}) => {
+      let doc = await Meeting.findOne({name: name})
+      // console.log(doc)
+      return doc
+    },
+    company(_, {name}) {
+      return Company.findOne({name: name})
+    },
+    application(_, {id}) {
+      return Application.findOne({id: _id})
     },
   },
   Mutation: {
@@ -47,6 +59,21 @@ const resolveFunctions = {
       return find(authors, { id: post.authorId });
     },
   },
+  Meeting: {
+    application: async (meeting) => {
+      const doc = await Application.findOne({meetingId: meeting._id, type: '上市公司'})
+      // console.log([doc])
+      return [doc]
+    }
+  },
+  Application: {
+    company: async (application) => {
+      // console.log(application)
+      const doc = await Company.findOne({_id: application.corporationId})
+      // console.log(doc)
+      return doc
+    }
+  }
 };
 
 export default resolveFunctions;

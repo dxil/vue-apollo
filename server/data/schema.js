@@ -15,10 +15,32 @@ type Post {
   author: Author
   votes: Int
 }
+type Meeting {
+  _id: String
+  name: String
+  status: String
+  application: [Application]
+}
+type Application {
+  _id: String!
+  meetingId: String
+  corporationId: String
+  name: String
+  company: Company
+}
+type Company {
+  _id: String!
+  name: String
+  shareCode: String
+  shareType: String
+}
 # the schema allows the following query:
 type Query {
   posts: [Post]
   author(id: Int!): Author
+  meeting(name: String!): Meeting
+  company(name: String!): Company
+  application(id: String!): Application
 }
 # this schema allows the following mutation:
 type Mutation {
